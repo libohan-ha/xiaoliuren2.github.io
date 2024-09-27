@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>小六壬寻物网站</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .selection {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .selection div {
+            flex: 1;
+            margin: 0 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>小六壬寻物</h1>
+        <div class="selection">
+            <div>
+                <label for="month">月份</label>
+                <select id="month">
+                    <!-- Options 1 to 12 -->
+                    <option value="1">1月</option>
+                    <option value="2">2月</option>
+                    <option value="3">3月</option>
+                    <option value="4">4月</option>
+                    <option value="5">5月</option>
+                    <option value="6">6月</option>
+                    <option value="7">7月</option>
+                    <option value="8">8月</option>
+                    <option value="9">9月</option>
+                    <option value="10">10月</option>
+                    <option value="11">11月</option>
+                    <option value="12">12月</option>
+                </select>
+            </div>
+            <div>
+                <label for="day">日份</label>
+                <select id="day">
+                    <!-- 日份选项将由JavaScript动态生成 -->
+                </select>
+            </div>
+            <div>
+                <label for="hour">时辰</label>
+                <select id="hour">
+                    <!-- 时辰及对应时间范围 -->
+                    <option value="1">子时 (23:00-01:00)</option>
+                    <option value="2">丑时 (01:00-03:00)</option>
+                    <option value="3">寅时 (03:00-05:00)</option>
+                    <option value="4">卯时 (05:00-07:00)</option>
+                    <option value="5">辰时 (07:00-09:00)</option>
+                    <option value="6">巳时 (09:00-11:00)</option>
+                    <option value="7">午时 (11:00-13:00)</option>
+                    <option value="8">未时 (13:00-15:00)</option>
+                    <option value="9">申时 (15:00-17:00)</option>
+                    <option value="10">酉时 (17:00-19:00)</option>
+                    <option value="11">戌时 (19:00-21:00)</option>
+                    <option value="12">亥时 (21:00-23:00)</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="calculate()">开始寻物</button>
+        <div class="result" id="result">
+            <!-- 结果将在这里显示 -->
+        </div>
+    </div>
+
+    <script>
+        // 定义循环列表
+        const circularList = ['大安', '留连', '速喜', '赤口', '小吉', '空亡'];
+
+        // 定义组合与结果的映射
+        const combinationMap = {
+            '大安+大安': '失物家中寻',
+            '大安+留连': '失物西北去',
+            '大安+速喜': '失物当日见',
+            '大安+赤口': '失物不用找',
+            '大安+小吉': '失物不出门',
+            '大安+空亡': '失物无影踪',
+            '留连+大安': '失物家中藏',
+            '留连+速喜': '失物三天现',
+            '留连+赤口': '失物准不见',
+            '留连+小吉': '失物东南去',
+            '留连+空亡': '失物不见面',
+            '留连+留连': '失物在南方',
+            '小吉+空亡': '失物东北找',
+            '小吉+大安': '失物自己出',
+            '小吉+留连': '失物上西南',
+            '小吉+速喜': '失物在院里',
+            '小吉+赤口': '失物已丢失',
+            '小吉+小吉': '失物西南方',
+            '空亡+大安': '失物反复间',
+            '空亡+留连': '失物不复还',
+            '空亡+速喜': '失物在家里',
+            '空亡+赤口': '失物往远走',
+            '空亡+小吉': '失物回家里',
+            '空亡+空亡': '失物寻不见',
+            '速喜+赤口': '失物在正北',
+            '速喜+小吉': '失物在家里',
+            '速喜+空亡': '失物不久见',
+            '速喜+大安': '失物不会丢',
+            '速喜+留连': '失物无音讯',
+            '速喜+速喜': '失物在正南到正南偏西十五度',
+            '赤口+小吉': '失物无信息',
+            '赤口+空亡': '失物不用寻',
+            '赤口+大安': '失物东北寻',
+            '赤口+留连': '失物寻不到',
+            '赤口+速喜': '失物有着落',
+            '赤口+赤口': '失物在正西'
+        };
+
+        function calculate() {
+            // 获取用户输入
+            const month = parseInt(document.getElementById('month').value);
+            const day = parseInt(document.getElementById('day').value);
+            const hour = parseInt(document.getElementById('hour').value);
+
+            // 使用月份、日和时辰作为步数
+            const steps = [month, day, hour];
+
+            let currentIndex = 0; // 从 '大安' 开始
+
+            let stops = [];
+
+            steps.forEach(step => {
+                // 计算新的索引
+                currentIndex = (currentIndex + step - 1) % circularList.length;
+                stops.push(circularList[currentIndex]);
+            });
+
+            // 检查是否有足够的结果
+            if (stops.length < 3) {
+                document.getElementById('result').innerText = `结果不足，无法显示第二个和第三个结果。`;
+                return;
+            }
+
+            // 获取第二个和第三个结果
+            const first = stops[1];
+            const second = stops[2];
+
+            // 构造组合键
+            const key = `${first}+${second}`;
+
+            // 获取对应的失物信息
+            const message = combinationMap[key] || '未找到对应的失物信息。';
+
+            // 显示结果
+            document.getElementById('result').innerHTML = `
+                结果：<br>
+                ${first} ${second}<br>
+                ${message}
+            `;
+        }
+
+        // 动态填充日份选项
+        (function populateDays() {
+            const daySelect = document.getElementById('day');
+            let options = '';
+            for(let i = 1; i <= 31; i++) {
+                options += `<option value="${i}">${i}日</option>`;
+            }
+            daySelect.innerHTML = options;
+        })();
+    </script>
+</body>
+</html>
